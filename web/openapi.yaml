@@ -1,0 +1,54 @@
+openapi: 3.0.3
+info:
+  title: Gene Synonym Resolver API
+  version: 0.1.0
+servers:
+  - url: http://localhost:8080/api
+paths:
+  /species:
+    get:
+      summary: List supported species
+      responses:
+        "200": { description: A list of species }
+  /resolve:
+    get:
+      summary: Resolve one gene name
+      parameters:
+        - { name: species, in: query, required: true, schema: { type: integer }, description: NCBI taxon ID }
+        - { name: name, in: query, required: true, schema: { type: string, maxLength: 200 } }
+        - { name: format, in: query, schema: { type: string, enum: [json, csv] } }
+      responses:
+        "200": { description: Resolution result }
+        "400": { description: Invalid input }
+        "429": { description: Too many requests }
+  /stats:
+    get:
+      summary: Totals shown on the Overview page (species, genes, names, source files)
+      responses:
+        "200": { description: Counts }
+  /resolve/all:
+    get:
+      summary: Resolve one gene name in every supported species (one request)
+      parameters:
+        - { name: name, in: query, required: true, schema: { type: string, maxLength: 200 } }
+      responses:
+        "200": { description: All matching genes across species, each with taxon_id and match_tier }
+        "400": { description: Invalid input }
+        "429": { description: Too many requests }
+  /resolve/batch:
+    post:
+      summary: Resolve up to 500 names
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [species, names]
+              properties:
+                species: { description: 'NCBI taxon ID, or the word all to search every species', oneOf: [{ type: integer }, { type: string, enum: [all] }] }
+                names: { type: array, maxItems: 500, items: { type: string } }
+                context: { type: string, maxLength: 5000, description: 'Optional free text (pathway, function, abstract). When several genes share a name, genes whose description matches more of these words are preferred; resolved rows get the flag resolved_by_context.' }
+      responses:
+        "200": { description: 'Resolution results. With species all, each name returns one row per matching species; every row has confidence_probability, confidence_label (high, medium, low) and explanation.' }
+        "413": { description: Too many names }
