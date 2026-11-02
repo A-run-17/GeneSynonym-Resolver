@@ -1,0 +1,32 @@
+name: project72
+services:
+  db:
+    image: postgres:16
+    env_file: .env
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  php:
+    build: ./web
+    environment:
+      DB_HOST: db
+      POSTGRES_DB: ${POSTGRES_DB}
+      WEB_DB_USER: ${WEB_DB_USER}
+      WEB_DB_PASSWORD: ${WEB_DB_PASSWORD}
+    volumes:
+      - ./web:/var/www
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:1.27
+    ports: ["8080:80"]
+    volumes:
+      - ./web:/var/www
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+
+volumes:
+  pgdata:

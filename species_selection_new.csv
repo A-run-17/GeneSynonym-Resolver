@@ -1,0 +1,17 @@
+﻿scientific_name,taxon_id,clade,common_name,inclusion_reason
+Bos taurus,9913,vertebrate,cow,Livestock mammal with a RefSeq-annotated genome; adds mammal coverage beyond the usual model species; benchmark source to confirm (e.g. Bovine Genome Database).
+Gallus gallus,9031,vertebrate,chicken,Bird representative with a well-annotated genome; covers the non-mammalian vertebrate branch; benchmark source to confirm.
+Sus scrofa,9823,vertebrate,pig,Second livestock mammal with RefSeq annotation; useful for testing gene names that differ from human and mouse; benchmark source to confirm.
+Xenopus tropicalis,8364,vertebrate,western clawed frog,Amphibian representative; has a dedicated community database (Xenbase) that can act as an answer key.
+Apis mellifera,7460,invertebrate,honey bee,Insect from a different order than fruit fly; annotated genome; benchmark source to confirm.
+Aedes aegypti,7159,invertebrate,yellow fever mosquito,Disease-vector insect with an annotated genome; VEuPathDB (VectorBase) is a likely answer key.
+Bombyx mori,7091,invertebrate,silkworm,Moth representative that widens insect coverage; benchmark source to confirm.
+Tribolium castaneum,7070,invertebrate,red flour beetle,Beetle representative (largest animal order) with an annotated genome; benchmark source to confirm.
+Nematostella vectensis,45351,invertebrate,starlet sea anemone,"Cnidarian outside the bilaterian animals, so it tests distant orthology; benchmark source to confirm."
+Oryza sativa,4530,plant,rice,Major crop monocot with an annotated genome; Gramene or RAP-DB is a likely answer key. NCBI gene data may use the subspecies ID.
+Zea mays,4577,plant,maize,Crop monocot with a large genome and many alias names; MaizeGDB is a likely answer key.
+Solanum lycopersicum,4081,plant,tomato,Crop eudicot (different plant lineage from rice and maize); Sol Genomics Network is a likely answer key.
+Neurospora crassa,5141,fungus,bread mold,Filamentous fungus (not yeast) that adds fungal coverage; FungiDB is a likely answer key. NCBI gene data may use a strain ID.
+Plasmodium falciparum,5833,protist,malaria parasite,Parasitic protist with annotated genome; VEuPathDB is a likely answer key. NCBI gene data often uses the 3D7 strain ID.
+Dictyostelium discoideum,44689,protist,slime mold,Amoebozoan protist; dictyBase is a likely answer key. NCBI gene data may use the AX4 strain ID.
+Homo sapiens,9606,Hominini ,human,"""Well-annotated reference genome; useful as the model-species comparison for the non-model species."""
