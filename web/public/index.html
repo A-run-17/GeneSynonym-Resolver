@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GeneSynonym Resolver</title>
+  <meta name="description" content="Resolve gene names, synonyms and retired IDs to official NCBI genes in non-model species.">
+  <meta name="theme-color" content="#101213">
+
+  <!-- Favicon: SVG for modern browsers, ICO and PNG as fallbacks -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.ico" sizes="48x48">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+  <!-- Applies the saved theme BEFORE the page is drawn, so there is no flash -->
+  <script>
+    (function () {
+      var t = 'dark';
+      try { t = localStorage.getItem('theme') === 'light' ? 'light' : 'dark'; } catch (e) {}
+      document.documentElement.setAttribute('data-theme', t);
+      if (!(window.CSS && CSS.registerProperty)) document.documentElement.className = 'no-prop';
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=5">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="bar">
+    <a class="logo" href="#search" aria-label="GeneSynonym Resolver, home">
+      <svg class="logo-mark" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><line class="lr" x1="17.1" y1="6.0" x2="6.9" y2="6.0"/><line class="lr" x1="14.3" y1="8.4" x2="9.7" y2="8.4"/><line class="lr" x1="7.9" y1="10.8" x2="16.1" y2="10.8"/><line class="lr" x1="7.9" y1="13.2" x2="16.1" y2="13.2"/><line class="lr" x1="14.3" y1="15.6" x2="9.7" y2="15.6"/><line class="lr" x1="17.1" y1="18.0" x2="6.9" y2="18.0"/><polyline class="lb" points="12.0,3.6 11.2,3.9 10.4,4.2 9.6,4.4 8.9,4.7 8.3,5.0 7.7,5.3 7.3,5.6 7.0,5.8 6.8,6.1 6.7,6.4 6.8,6.7 7.0,7.0 7.3,7.2 7.7,7.5 8.3,7.8 8.9,8.1 9.6,8.4 10.4,8.6 11.2,8.9 12.0,9.2 12.8,9.5 13.6,9.8 14.4,10.0 15.1,10.3 15.7,10.6 16.3,10.9 16.7,11.2 17.0,11.4 17.2,11.7 17.3,12.0 17.2,12.3 17.0,12.6 16.7,12.8 16.3,13.1 15.7,13.4 15.1,13.7 14.4,14.0 13.6,14.2 12.8,14.5 12.0,14.8 11.2,15.1 10.4,15.4 9.6,15.6 8.9,15.9 8.3,16.2 7.7,16.5 7.3,16.8 7.0,17.0 6.8,17.3 6.7,17.6 6.8,17.9 7.0,18.2 7.3,18.4 7.7,18.7 8.3,19.0 8.9,19.3 9.6,19.6 10.4,19.8 11.2,20.1 12.0,20.4"/><polyline class="la" points="12.0,3.6 12.8,3.9 13.6,4.2 14.4,4.4 15.1,4.7 15.7,5.0 16.3,5.3 16.7,5.6 17.0,5.8 17.2,6.1 17.3,6.4 17.2,6.7 17.0,7.0 16.7,7.2 16.3,7.5 15.7,7.8 15.1,8.1 14.4,8.4 13.6,8.6 12.8,8.9 12.0,9.2 11.2,9.5 10.4,9.8 9.6,10.0 8.9,10.3 8.3,10.6 7.7,10.9 7.3,11.2 7.0,11.4 6.8,11.7 6.7,12.0 6.8,12.3 7.0,12.6 7.3,12.8 7.7,13.1 8.3,13.4 8.9,13.7 9.6,14.0 10.4,14.2 11.2,14.5 12.0,14.8 12.8,15.1 13.6,15.4 14.4,15.6 15.1,15.9 15.7,16.2 16.3,16.5 16.7,16.8 17.0,17.0 17.2,17.3 17.3,17.6 17.2,17.9 17.0,18.2 16.7,18.4 16.3,18.7 15.7,19.0 15.1,19.3 14.4,19.6 13.6,19.8 12.8,20.1 12.0,20.4"/></svg>
+      <span class="logo-text">GeneSynonym<span class="logo-accent">.Resolver</span></span>
+    </a>
+
+    <div class="bar-right">
+      <!-- Theme switch: the moon turns into a sun in light mode -->
+      <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Switch to light theme" aria-pressed="false" title="Switch theme">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <defs>
+            <mask id="tt-mask">
+              <rect width="24" height="24" fill="#fff"/>
+              <circle class="tt-cut" cx="12" cy="12" r="6.5" fill="#000"/>
+            </mask>
+          </defs>
+          <g mask="url(#tt-mask)"><circle class="tt-body" cx="12" cy="12" r="5"/></g>
+          <g class="tt-rays">
+            <line x1="12" y1="1.6" x2="12" y2="3.8"/>
+            <line x1="12" y1="1.6" x2="12" y2="3.8" transform="rotate(45 12 12)"/>
+            <line x1="12" y1="1.6" x2="12" y2="3.8" transform="rotate(90 12 12)"/>
+            <line x1="12" y1="1.6" x2="12" y2="3.8" transform="rotate(135 12 12)"/>
+            <line x1="12" y1="1.6" x2="12" y2="3.8" transform="rotate(180 12 12)"/>
+            <line x1="12" y1="1.6" x2="12" y2="3.8" transform="rotate(225 12 12)"/>
+            <line x1="12" y1="1.6" x2="12" y2="3.8" transform="rotate(270 12 12)"/>
+            <line x1="12" y1="1.6" x2="12" y2="3.8" transform="rotate(315 12 12)"/>
+          </g>
+        </svg>
+      </button>
+
+      <nav class="tabs" aria-label="Sections">
+        <span class="tab-indicator" aria-hidden="true"></span>
+        <a href="#search" data-tab="search">Search</a>
+        <a href="#browse" data-tab="browse">Browser</a>
+        <a href="#bulk" data-tab="bulk">Bulk converter</a>
+        <a href="#overview" data-tab="overview">Overview</a>
+        <a href="#about" data-tab="about">About us</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ SEARCH ============ -->
+  <section data-view="search" hidden>
+    <div class="page-head has-helix narrow">
+      <div>
+        <h1>Find the official gene for any name</h1>
+        <p class="lead">Enter a symbol, synonym, locus tag or NCBI Gene ID. You get the official gene, how closely the name matched, and how confident the match is.</p>
+      </div>
+      <svg class="helix" viewBox="0 0 140 300" width="140" height="300" aria-hidden="true" focusable="false">
+  <g class="helix-move">
+    <g class="h-rungs"><line x1="95.9" y1="-90" x2="44.1" y2="-90"/><line x1="111.8" y1="-80" x2="28.2" y2="-80"/><line x1="111.8" y1="-70" x2="28.2" y2="-70"/><line x1="95.9" y1="-60" x2="44.1" y2="-60"/><line x1="44.1" y1="-40" x2="95.9" y2="-40"/><line x1="28.2" y1="-30" x2="111.8" y2="-30"/><line x1="28.2" y1="-20" x2="111.8" y2="-20"/><line x1="44.1" y1="-10" x2="95.9" y2="-10"/><line x1="95.9" y1="10" x2="44.1" y2="10"/><line x1="111.8" y1="20" x2="28.2" y2="20"/><line x1="111.8" y1="30" x2="28.2" y2="30"/><line x1="95.9" y1="40" x2="44.1" y2="40"/><line x1="44.1" y1="60" x2="95.9" y2="60"/><line x1="28.2" y1="70" x2="111.8" y2="70"/><line x1="28.2" y1="80" x2="111.8" y2="80"/><line x1="44.1" y1="90" x2="95.9" y2="90"/><line x1="95.9" y1="110" x2="44.1" y2="110"/><line x1="111.8" y1="120" x2="28.2" y2="120"/><line x1="111.8" y1="130" x2="28.2" y2="130"/><line x1="95.9" y1="140" x2="44.1" y2="140"/><line x1="44.1" y1="160" x2="95.9" y2="160"/><line x1="28.2" y1="170" x2="111.8" y2="170"/><line x1="28.2" y1="180" x2="111.8" y2="180"/><line x1="44.1" y1="190" x2="95.9" y2="190"/><line x1="95.9" y1="210" x2="44.1" y2="210"/><line x1="111.8" y1="220" x2="28.2" y2="220"/><line x1="111.8" y1="230" x2="28.2" y2="230"/><line x1="95.9" y1="240" x2="44.1" y2="240"/><line x1="44.1" y1="260" x2="95.9" y2="260"/><line x1="28.2" y1="270" x2="111.8" y2="270"/><line x1="28.2" y1="280" x2="111.8" y2="280"/><line x1="44.1" y1="290" x2="95.9" y2="290"/><line x1="95.9" y1="310" x2="44.1" y2="310"/><line x1="111.8" y1="320" x2="28.2" y2="320"/><line x1="111.8" y1="330" x2="28.2" y2="330"/><line x1="95.9" y1="340" x2="44.1" y2="340"/><line x1="44.1" y1="360" x2="95.9" y2="360"/><line x1="28.2" y1="370" x2="111.8" y2="370"/><line x1="28.2" y1="380" x2="111.8" y2="380"/><line x1="44.1" y1="390" x2="95.9" y2="390"/></g>
+    <polyline class="h-b" points="70.0,-100 59.1,-96 48.8,-92 39.9,-88 32.8,-84 28.2,-80 26.1,-76 26.8,-72 30.2,-68 36.1,-64 44.1,-60 53.8,-56 64.5,-52 75.5,-48 86.2,-44 95.9,-40 103.9,-36 109.8,-32 113.2,-28 113.9,-24 111.8,-20 107.2,-16 100.1,-12 91.2,-8 80.9,-4 70.0,0 59.1,4 48.8,8 39.9,12 32.8,16 28.2,20 26.1,24 26.8,28 30.2,32 36.1,36 44.1,40 53.8,44 64.5,48 75.5,52 86.2,56 95.9,60 103.9,64 109.8,68 113.2,72 113.9,76 111.8,80 107.2,84 100.1,88 91.2,92 80.9,96 70.0,100 59.1,104 48.8,108 39.9,112 32.8,116 28.2,120 26.1,124 26.8,128 30.2,132 36.1,136 44.1,140 53.8,144 64.5,148 75.5,152 86.2,156 95.9,160 103.9,164 109.8,168 113.2,172 113.9,176 111.8,180 107.2,184 100.1,188 91.2,192 80.9,196 70.0,200 59.1,204 48.8,208 39.9,212 32.8,216 28.2,220 26.1,224 26.8,228 30.2,232 36.1,236 44.1,240 53.8,244 64.5,248 75.5,252 86.2,256 95.9,260 103.9,264 109.8,268 113.2,272 113.9,276 111.8,280 107.2,284 100.1,288 91.2,292 80.9,296 70.0,300 59.1,304 48.8,308 39.9,312 32.8,316 28.2,320 26.1,324 26.8,328 30.2,332 36.1,336 44.1,340 53.8,344 64.5,348 75.5,352 86.2,356 95.9,360 103.9,364 109.8,368 113.2,372 113.9,376 111.8,380 107.2,384 100.1,388 91.2,392 80.9,396 70.0,400"/>
+    <polyline class="h-a" points="70.0,-100 80.9,-96 91.2,-92 100.1,-88 107.2,-84 111.8,-80 113.9,-76 113.2,-72 109.8,-68 103.9,-64 95.9,-60 86.2,-56 75.5,-52 64.5,-48 53.8,-44 44.1,-40 36.1,-36 30.2,-32 26.8,-28 26.1,-24 28.2,-20 32.8,-16 39.9,-12 48.8,-8 59.1,-4 70.0,0 80.9,4 91.2,8 100.1,12 107.2,16 111.8,20 113.9,24 113.2,28 109.8,32 103.9,36 95.9,40 86.2,44 75.5,48 64.5,52 53.8,56 44.1,60 36.1,64 30.2,68 26.8,72 26.1,76 28.2,80 32.8,84 39.9,88 48.8,92 59.1,96 70.0,100 80.9,104 91.2,108 100.1,112 107.2,116 111.8,120 113.9,124 113.2,128 109.8,132 103.9,136 95.9,140 86.2,144 75.5,148 64.5,152 53.8,156 44.1,160 36.1,164 30.2,168 26.8,172 26.1,176 28.2,180 32.8,184 39.9,188 48.8,192 59.1,196 70.0,200 80.9,204 91.2,208 100.1,212 107.2,216 111.8,220 113.9,224 113.2,228 109.8,232 103.9,236 95.9,240 86.2,244 75.5,248 64.5,252 53.8,256 44.1,260 36.1,264 30.2,268 26.8,272 26.1,276 28.2,280 32.8,284 39.9,288 48.8,292 59.1,296 70.0,300 80.9,304 91.2,308 100.1,312 107.2,316 111.8,320 113.9,324 113.2,328 109.8,332 103.9,336 95.9,340 86.2,344 75.5,348 64.5,352 53.8,356 44.1,360 36.1,364 30.2,368 26.8,372 26.1,376 28.2,380 32.8,384 39.9,388 48.8,392 59.1,396 70.0,400"/>
+    <g class="h-dots"><circle class="da" cx="70.0" cy="-100" r="2.3"/><circle class="db" cx="70.0" cy="-100" r="2.3"/><circle class="da" cx="95.9" cy="-90" r="2.3"/><circle class="db" cx="44.1" cy="-90" r="2.3"/><circle class="da" cx="111.8" cy="-80" r="2.3"/><circle class="db" cx="28.2" cy="-80" r="2.3"/><circle class="da" cx="111.8" cy="-70" r="2.3"/><circle class="db" cx="28.2" cy="-70" r="2.3"/><circle class="da" cx="95.9" cy="-60" r="2.3"/><circle class="db" cx="44.1" cy="-60" r="2.3"/><circle class="da" cx="70.0" cy="-50" r="2.3"/><circle class="db" cx="70.0" cy="-50" r="2.3"/><circle class="da" cx="44.1" cy="-40" r="2.3"/><circle class="db" cx="95.9" cy="-40" r="2.3"/><circle class="da" cx="28.2" cy="-30" r="2.3"/><circle class="db" cx="111.8" cy="-30" r="2.3"/><circle class="da" cx="28.2" cy="-20" r="2.3"/><circle class="db" cx="111.8" cy="-20" r="2.3"/><circle class="da" cx="44.1" cy="-10" r="2.3"/><circle class="db" cx="95.9" cy="-10" r="2.3"/><circle class="da" cx="70.0" cy="0" r="2.3"/><circle class="db" cx="70.0" cy="0" r="2.3"/><circle class="da" cx="95.9" cy="10" r="2.3"/><circle class="db" cx="44.1" cy="10" r="2.3"/><circle class="da" cx="111.8" cy="20" r="2.3"/><circle class="db" cx="28.2" cy="20" r="2.3"/><circle class="da" cx="111.8" cy="30" r="2.3"/><circle class="db" cx="28.2" cy="30" r="2.3"/><circle class="da" cx="95.9" cy="40" r="2.3"/><circle class="db" cx="44.1" cy="40" r="2.3"/><circle class="da" cx="70.0" cy="50" r="2.3"/><circle class="db" cx="70.0" cy="50" r="2.3"/><circle class="da" cx="44.1" cy="60" r="2.3"/><circle class="db" cx="95.9" cy="60" r="2.3"/><circle class="da" cx="28.2" cy="70" r="2.3"/><circle class="db" cx="111.8" cy="70" r="2.3"/><circle class="da" cx="28.2" cy="80" r="2.3"/><circle class="db" cx="111.8" cy="80" r="2.3"/><circle class="da" cx="44.1" cy="90" r="2.3"/><circle class="db" cx="95.9" cy="90" r="2.3"/><circle class="da" cx="70.0" cy="100" r="2.3"/><circle class="db" cx="70.0" cy="100" r="2.3"/><circle class="da" cx="95.9" cy="110" r="2.3"/><circle class="db" cx="44.1" cy="110" r="2.3"/><circle class="da" cx="111.8" cy="120" r="2.3"/><circle class="db" cx="28.2" cy="120" r="2.3"/><circle class="da" cx="111.8" cy="130" r="2.3"/><circle class="db" cx="28.2" cy="130" r="2.3"/><circle class="da" cx="95.9" cy="140" r="2.3"/><circle class="db" cx="44.1" cy="140" r="2.3"/><circle class="da" cx="70.0" cy="150" r="2.3"/><circle class="db" cx="70.0" cy="150" r="2.3"/><circle class="da" cx="44.1" cy="160" r="2.3"/><circle class="db" cx="95.9" cy="160" r="2.3"/><circle class="da" cx="28.2" cy="170" r="2.3"/><circle class="db" cx="111.8" cy="170" r="2.3"/><circle class="da" cx="28.2" cy="180" r="2.3"/><circle class="db" cx="111.8" cy="180" r="2.3"/><circle class="da" cx="44.1" cy="190" r="2.3"/><circle class="db" cx="95.9" cy="190" r="2.3"/><circle class="da" cx="70.0" cy="200" r="2.3"/><circle class="db" cx="70.0" cy="200" r="2.3"/><circle class="da" cx="95.9" cy="210" r="2.3"/><circle class="db" cx="44.1" cy="210" r="2.3"/><circle class="da" cx="111.8" cy="220" r="2.3"/><circle class="db" cx="28.2" cy="220" r="2.3"/><circle class="da" cx="111.8" cy="230" r="2.3"/><circle class="db" cx="28.2" cy="230" r="2.3"/><circle class="da" cx="95.9" cy="240" r="2.3"/><circle class="db" cx="44.1" cy="240" r="2.3"/><circle class="da" cx="70.0" cy="250" r="2.3"/><circle class="db" cx="70.0" cy="250" r="2.3"/><circle class="da" cx="44.1" cy="260" r="2.3"/><circle class="db" cx="95.9" cy="260" r="2.3"/><circle class="da" cx="28.2" cy="270" r="2.3"/><circle class="db" cx="111.8" cy="270" r="2.3"/><circle class="da" cx="28.2" cy="280" r="2.3"/><circle class="db" cx="111.8" cy="280" r="2.3"/><circle class="da" cx="44.1" cy="290" r="2.3"/><circle class="db" cx="95.9" cy="290" r="2.3"/><circle class="da" cx="70.0" cy="300" r="2.3"/><circle class="db" cx="70.0" cy="300" r="2.3"/><circle class="da" cx="95.9" cy="310" r="2.3"/><circle class="db" cx="44.1" cy="310" r="2.3"/><circle class="da" cx="111.8" cy="320" r="2.3"/><circle class="db" cx="28.2" cy="320" r="2.3"/><circle class="da" cx="111.8" cy="330" r="2.3"/><circle class="db" cx="28.2" cy="330" r="2.3"/><circle class="da" cx="95.9" cy="340" r="2.3"/><circle class="db" cx="44.1" cy="340" r="2.3"/><circle class="da" cx="70.0" cy="350" r="2.3"/><circle class="db" cx="70.0" cy="350" r="2.3"/><circle class="da" cx="44.1" cy="360" r="2.3"/><circle class="db" cx="95.9" cy="360" r="2.3"/><circle class="da" cx="28.2" cy="370" r="2.3"/><circle class="db" cx="111.8" cy="370" r="2.3"/><circle class="da" cx="28.2" cy="380" r="2.3"/><circle class="db" cx="111.8" cy="380" r="2.3"/><circle class="da" cx="44.1" cy="390" r="2.3"/><circle class="db" cx="95.9" cy="390" r="2.3"/><circle class="da" cx="70.0" cy="400" r="2.3"/><circle class="db" cx="70.0" cy="400" r="2.3"/></g>
+  </g>
+</svg>
+    </div>
+
+    <form id="search-form" class="narrow" autocomplete="off">
+      <div class="searchbar">
+        <label class="sr-only" for="q">Gene name, symbol, synonym or Gene ID</label>
+        <input id="q" type="text" maxlength="200" spellcheck="false" placeholder="Gene name, symbol or ID" role="combobox" aria-autocomplete="list" aria-controls="live-suggestions" aria-expanded="false">
+
+        <label class="sr-only" for="s-species">Species</label>
+        <select id="s-species"></select>
+
+        <button type="submit" class="btn-primary">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          Search
+        </button>
+      </div>
+
+      <div class="examples">
+        <span>Try</span>
+        <button type="button" class="example" data-example="TP53" title="An official symbol (Tier 1)">TP53</button>
+        <button type="button" class="example" data-example="P53" title="An alias of TP53 (Tier 2)">P53</button>
+        <button type="button" class="example" data-example="HSP70">HSP70</button>
+        <button type="button" class="example" data-example="ACTB">ACTB</button>
+        <button type="button" class="example" data-example="GAPDH">GAPDH</button>
+      </div>
+
+      <div id="live-suggestions" class="live-suggestions" role="listbox" aria-label="Gene suggestions" hidden></div>
+    </form>
+
+    <div id="s-results" class="results narrow" aria-live="polite"></div>
+  </section>
+
+  <!-- ============ BROWSER ============ -->
+  <section data-view="browse" hidden>
+    <div class="page-head narrow">
+      <h1>Browse genes by species</h1>
+      <p class="lead">Pick a species, then a starting letter, to read through every gene we hold for it.</p>
+    </div>
+
+    <div class="panel narrow">
+      <label class="label" for="b-species">Species</label>
+      <select id="b-species"></select>
+    </div>
+
+    <div id="letters" class="letters narrow" role="group" aria-label="Show genes starting with"></div>
+    <div id="b-results" class="results narrow" aria-live="polite"></div>
+  </section>
+
+  <!-- ============ BULK CONVERTER ============ -->
+  <section data-view="bulk" hidden>
+    <div class="page-head narrow">
+      <h1>Convert a whole list of names</h1>
+      <p class="lead">Paste names or upload a file. Choose one species, or <em>All species</em> to look every name up everywhere at once.</p>
+    </div>
+
+    <div class="panel narrow stack">
+      <div class="field">
+        <label class="label" for="bulk-species">Species</label>
+        <select id="bulk-species"></select>
+      </div>
+      <div class="field">
+        <label class="label" for="bulk-names">Gene names, one per line</label>
+        <textarea id="bulk-names" rows="8" spellcheck="false" placeholder="TP53&#10;P53&#10;HSP70"></textarea>
+      </div>
+      <div class="field">
+        <label class="label" for="bulk-file">Or upload a .txt or .csv file (the first column is used)</label>
+        <input id="bulk-file" type="file" accept=".txt,.csv">
+      </div>
+      <div class="field">
+        <label class="label" for="bulk-context">Optional context (pathway, function, abstract)</label>
+        <textarea id="bulk-context" rows="3" placeholder="e.g. prostaglandin synthesis, or paste a sentence from your abstract"></textarea>
+        <p class="hint">Used only when several genes share the same name. Words you enter are compared with each gene's description, and the best-supported gene is chosen. Descriptive words such as <em>kinase</em> or <em>heat shock</em> work best.</p>
+      </div>
+      <div class="row">
+        <button id="bulk-run" type="button" class="btn-primary">Resolve names</button>
+        <span id="bulk-status" class="status" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="bulk-output" hidden>
+      <div class="row out-actions">
+        <button id="dl-csv" type="button" class="btn-outline">Download CSV</button>
+        <button id="dl-json" type="button" class="btn-outline">Download JSON</button>
+      </div>
+      <div class="scroll">
+        <table id="bulk-table">
+          <thead>
+            <tr>
+              <th>Input name</th><th>Species</th><th>Gene ID</th><th>Official symbol</th>
+              <th>Match tier</th><th>Confidence</th><th>Flags</th><th>Alternatives</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="legend">
+        <strong>Match tier</strong> 1 = exact official symbol · 2 = exact alias or locus tag · 3 = matched after ignoring capitals, hyphens and spacing.
+        <strong>Confidence</strong> is a score from 0 to 100% combining the match tier with how many other genes share the name. High is 85% or more, medium 60 to 84%, low below 60%.
+        Hover over a confidence value to read the reason.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ OVERVIEW ============ -->
+  <section data-view="overview" hidden>
+    <div class="page-head narrow">
+      <h1>Overview</h1>
+      <p class="lead">GeneSynonym Resolver turns the many names a gene goes by into one official NCBI Gene record. It is built for species that the usual conversion tools handle poorly.</p>
+    </div>
+
+    <div class="doc narrow">
+
+      <dl class="glance" id="ov-stats">
+        <div><dt>Species</dt><dd data-stat="species_count">–</dd></div>
+        <div><dt>Genes</dt><dd data-stat="gene_count">–</dd></div>
+        <div><dt>Names indexed</dt><dd data-stat="name_count">–</dd></div>
+        <div><dt>Source files</dt><dd data-stat="release_count">–</dd></div>
+      </dl>
+
+      <h2 class="section-label">The problem</h2>
+      <p>The same gene is often written in several ways: an official symbol, older synonyms, a locus tag, a name borrowed from the human or mouse equivalent. In well-studied species the databases agree on these names. In non-model species they frequently do not. One name can point to two genes, two names can point to one gene, and identifiers get retired or merged between releases.</p>
+      <p>This tool does not guess. It lists every gene a name could mean, ranks them by how the name matched, and says plainly when the evidence is not enough to choose.</p>
+
+      <h2 class="section-label">How a name is resolved</h2>
+      <ol class="steps">
+        <li><strong>Clean the name.</strong> Capitals, hyphens, underscores and extra spaces are normalised, and Greek letters are spelled out. The original text is always kept.</li>
+        <li><strong>Find every candidate gene.</strong> The cleaned name is compared with all stored names for the chosen species, or for every species.</li>
+        <li><strong>Assign a match tier.</strong> Each candidate is labelled by how closely the input matched (see the table below).</li>
+        <li><strong>Score and flag.</strong> Each candidate gets a confidence score. Ties, shared names and retired symbols are flagged instead of being hidden.</li>
+      </ol>
+
+      <h2 class="section-label">Match tiers</h2>
+      <table class="plain">
+        <thead><tr><th>Tier</th><th>Rule</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><th>1</th><td>The input is exactly the official gene symbol.</td><td><span class="mono">TP53</span> → human <span class="mono">TP53</span></td></tr>
+          <tr><th>2</th><td>The input is exactly a stored synonym, alias or locus tag.</td><td><span class="mono">P53</span> → human <span class="mono">TP53</span></td></tr>
+          <tr><th>3</th><td>The input matches only after capitals, hyphens, underscores and spacing are ignored.</td><td><span class="mono">Tp53</span> → human <span class="mono">TP53</span></td></tr>
+        </tbody>
+      </table>
+      <p class="note">Tier 2 only appears when you type an alias exactly as NCBI stores it. If you type an official symbol with different capitals, it is Tier 3, because the text is not an exact match. Cross-reference matches (tier 4) and fuzzy matches (tier 5) are planned. Fuzzy matches will never be accepted automatically.</p>
+
+      <h2 class="section-label">Reading the confidence score</h2>
+      <p>The confidence score is a number from 0 to 100% shown with every result. It combines two things.</p>
+      <table class="plain">
+        <tbody>
+          <tr><th>Match type</th><td>How reliable this kind of match is on its own: exact official symbol 98%, exact alias or locus tag 90%, official name with different capitals 92%, other cleaned matches 80%. Retired symbols are reduced by a quarter.</td></tr>
+          <tr><th>Competition</th><td>The score is shared with other genes that use the same name. A name that belongs to only one gene keeps its full score; a name shared by several genes splits it.</td></tr>
+        </tbody>
+      </table>
+      <div class="scale" role="list" aria-label="Confidence levels">
+        <span class="pill conf-high" role="listitem">High · 85% or more</span>
+        <span class="pill conf-medium" role="listitem">Medium · 60 to 84%</span>
+        <span class="pill conf-low" role="listitem">Low · below 60%</span>
+      </div>
+      <p class="note">This is a transparent rule-based score, not yet a trained model, and it has not been calibrated against a benchmark set. Treat it as a guide to how much to double-check a result.</p>
+
+      <h2 class="section-label">Using context</h2>
+      <p>In the Bulk converter you can paste a few words about your experiment. When a name belongs to several genes equally, the words are compared with each gene's description. If one gene matches more of them, it is selected and its confidence rises. If the context does not separate the genes, nothing is guessed and the name stays ambiguous.</p>
+
+      <h2 class="section-label">Flags you may see</h2>
+      <table class="plain">
+        <tbody>
+          <tr><th>No match</th><td>No gene in the chosen species has this name, even after cleaning.</td></tr>
+          <tr><th>One name, many genes</th><td>More than one gene uses this name. All candidates are listed as alternatives.</td></tr>
+          <tr><th>Retired symbol</th><td>The name matched a symbol that is no longer current for the gene.</td></tr>
+          <tr><th>Resolved by context</th><td>Several genes share the name at the same level, and the optional context you gave in the Bulk converter matched only one of them.</td></tr>
+        </tbody>
+      </table>
+      <p>If you enter a numeric Gene ID that NCBI has replaced or merged, the tool follows the change and shows the current gene.</p>
+
+      <h2 class="section-label">Data sources</h2>
+      <p>Names, synonyms, locus tags, descriptions and retired identifiers come from the NCBI Gene files <span class="mono">gene_info</span> and <span class="mono">gene_history</span>. Species names follow NCBI Taxonomy.</p>
+      <div class="scroll"><table class="plain" id="ov-releases"><thead><tr><th>Source</th><th>File</th><th>Loaded</th></tr></thead><tbody></tbody></table></div>
+
+      <h2 class="section-label">Supported species</h2>
+      <div id="about-species" class="chip-row species-chips"></div>
+
+      <h2 class="section-label">What it does not do yet</h2>
+      <p>Orthology across model species, synteny and protein-domain evidence, and a trained ranking model are part of the project plan but are not in this version. Results here rest on name matching against NCBI Gene.</p>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT US ============ -->
+  <!-- EDIT THIS WHOLE SECTION: replace the placeholder text, names, roles and contact details. -->
+  <section data-view="about" hidden>
+    <div class="page-head narrow">
+      <h1>About us</h1>
+      <p class="lead">Who built GeneSynonym Resolver, and how to reach us.</p>
+    </div>
+
+    <div class="doc narrow">
+
+      <h2 class="section-label">The project</h2>
+      <!-- EDIT: one or two sentences about the project, course or institution -->
+      <p>GeneSynonym Resolver was developed as a bioinformatics mini project to make gene names in non-model species easier to resolve. Replace this paragraph with a short description of your project, institution and goals.</p>
+
+      <h2 class="section-label">The team</h2>
+      <div class="team">
+        <!-- EDIT: change the initials, name, role and bio. To add another person, copy the whole <article> block. -->
+        <article class="member">
+          <div class="avatar" aria-hidden="true">Ak</div>
+          <h3>Arun ks</h3>
+          <p class="role">Project lead    </p>
+          <p>The entire project was developed by this individual from back end to the complete implementation.</p>
+          <a class="member-link" href="mailto:arun170107@gmail.com">arun170107@gmail.com</a>
+        </article>
+            </div>
+
+      <h2 class="section-label">Guide</h2>
+      <!-- EDIT: supervisor / mentor details, or delete this section -->
+      <p><strong>Dr. Udayakumar Mani </strong><br>Assisatant Professor, 
+        Department of Bioinformatics,
+        SASTRA University</p>
+      
+
+      <h2 class="section-label">Contact</h2>
+      <!-- EDIT: real contact details -->
+      <table class="plain">
+        <tbody>
+          <tr><th>Email</th><td><a href="mailto:arun170107@gmail.com">arun170107@gmail.com</a></td></tr>
+          <tr><th>Institution</th><td>Department of Bioinformatics, SASTRA University</td></tr>
+          <tr><th>Address</th><td>thirumalaisamudram, Thanjavur-613401, Tamil Nadu, India</td></tr>
+          <tr><th>Code</th><td><a href="https://github.com/A-run-17" target="_blank" rel="noopener noreferrer">github.com/your-project</a></td></tr>
+        </tbody>
+      </table>
+      <p class="note">Found a wrong mapping? Email us the input name, the species and the result you expected, and we will look into it.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="bar">
+    <span>GeneSynonym Resolver · gene data from NCBI Gene</span>
+    <span><a href="#overview">Overview</a> · <a href="#about">About us</a></span>
+  </div>
+</footer>
+
+<!-- Gene detail, opened when a gene is clicked in the Browser or Bulk tabs -->
+<dialog id="gene-dialog" aria-label="Gene details">
+  <button type="button" id="gd-close" class="dlg-close" aria-label="Close">&times;</button>
+  <div id="gd-body"></div>
+</dialog>
+
+<script src="app.js?v=5"></script>
+</body>
+</html>
